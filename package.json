@@ -1,0 +1,16 @@
+{
+  "name": "videohub",
+  "version": "1.0.0",
+  "description": "Video Hub using node ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Node",
+    "Express",
+    "Jvascript"
+  ],
+  "author": "Kiran Gautam",
+  "license": "ISC"
+}
