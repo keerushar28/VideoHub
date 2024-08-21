@@ -1,8 +1,25 @@
-import dotenv from "dotenv";
-dotenv.config()
-import connectDB from "./config/dbconfig.js";
-import sendEmail from "./utils/sendEmail.js";
-import generateOTP from "./utils/generateOTP.js";
+import dotenv from 'dotenv'
+dotenv.config({
+    path: './.env',
+});
+import express from 'express'
+import connectDB from './config/dbconfig.js'
+import authRoutes from './routes/authRoutes.js'
+
+
 connectDB();
-//sendEmail(process.env.CLIENT,'Check','Hi there !!1')
-generateOTP();
+
+const app = express();
+const port = process.env.PORT || 3000;
+app.use(express.json());
+
+
+
+
+app.use('/api/auth', authRoutes)
+
+
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`
+    )
+})
