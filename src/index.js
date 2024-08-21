@@ -1,25 +1,25 @@
-import dotenv from 'dotenv'
-dotenv.config({
-    path: './.env',
-});
-import express from 'express'
-import connectDB from './config/dbconfig.js'
-import authRoutes from './routes/authRoutes.js'
+import dotenv from 'dotenv';
+import express from 'express';
+import connectDB from './config/dbconfig.js';
+import authRoutes from './routes/authRoutes.js';
 
+// Load environment variables from .env file
+dotenv.config({ path: './.env' });
 
+// Connect to the database
 connectDB();
 
+// Initialize Express app
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Middleware
 app.use(express.json());
 
+// Routes
+app.use('/api/auth', authRoutes);
 
-
-
-app.use('/api/auth', authRoutes)
-
-
+// Start the server
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`
-    )
-})
+    console.log(`Server is running on port ${port}`);
+});
