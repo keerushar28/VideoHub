@@ -72,3 +72,31 @@ export const verifyemail = async (req, res) => {
     }
 
 }
+
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if(!user)
+        {
+            return res.status(400).json({ message: "Invalid Email or Password" });
+        }
+        if(!user.isVerified)
+        {
+            return res.status(400).json({ message: "Please Verify Your Email First" });
+        }
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+            return res.status(400).json({ message: "Invalid Email or Password" });
+            }
+            
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error
+        });
+
+    }
+}
