@@ -37,7 +37,19 @@ const useSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
-        },
+    },
+    lastLogin: {
+        type: Date,
+        default: Date.now()
+    },
+    resetToken: {
+        type: String,
+
+    },
+    resetTokenExpiresAt: {
+        type: Date,
+    }
+
 
 
 }
