@@ -79,7 +79,7 @@ export const login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "Invalid Email or Password" });
+            return res.status(400).json({ message: "Email doesn't exist please register" });
         }
         if (!user.isVerified) {
             return res.status(400).json({ message: "Please Verify Your Email First" });
@@ -99,7 +99,24 @@ export const login = async (req, res) => {
         console.error(error);
         res.status(500).json({
             message: "Internal Server Error",
-            error 
+            error
+        });
+
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        res.clearCookie('jwt');
+        res.status(200).json({ message: "Logged Out Successfully" });
+
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Internal Server Error",
+            error
         });
 
     }
