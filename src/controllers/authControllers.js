@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import User from "../models/userModel.js";
 import generateOTP from "../utils/generateOTP.js";
 import { sendEmail, welcomeEmail } from '../utils/sendEmail.js';
+import { generateCookie } from '../utils/cookies.js';
 
 export const register = async (req, res) => {
     try {
@@ -67,7 +68,7 @@ export const verifyemail = async (req, res) => {
 
     } catch (error) {
         console.error("Error During Verification", error.message)
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
 
     }
 
@@ -77,25 +78,28 @@ export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
-        if(!user)
-        {
+        if (!user) {
             return res.status(400).json({ message: "Invalid Email or Password" });
         }
-        if(!user.isVerified)
-        {
+        if (!user.isVerified) {
             return res.status(400).json({ message: "Please Verify Your Email First" });
         }
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             return res.status(400).json({ message: "Invalid Email or Password" });
-            }
-            
+        }
+        generateCookie(res, user._id);
+        user.lastLogin = Date.now();
+        await user.save();
+        res.status(200).json({ message: "Login Successfully" });
+
+
 
     } catch (error) {
         console.error(error);
         res.status(500).json({
             message: "Internal Server Error",
-            error: error
+            error 
         });
 
     }
