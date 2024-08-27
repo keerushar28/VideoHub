@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import User from "../models/userModel.js";
 import generateOTP from "../utils/generateOTP.js";
-import { sendEmail, welcomeEmail } from '../utils/sendEmail.js';
+import { forgotPasswordEmail, sendEmail, welcomeEmail } from '../utils/sendEmail.js';
 import { generateCookie } from '../utils/cookies.js';
+import crypto from 'crypto'
 
 export const register = async (req, res) => {
     try {
@@ -77,7 +78,7 @@ export const verifyemail = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select("-password")
         if (!user) {
             return res.status(400).json({ message: "Email doesn't exist please register" });
         }
@@ -91,7 +92,10 @@ export const login = async (req, res) => {
         generateCookie(res, user._id);
         user.lastLogin = Date.now();
         await user.save();
-        res.status(200).json({ message: "Login Successfully" });
+        res.status(200).json({
+            message: "Login Successfully",
+            user
+        });
 
 
 
@@ -118,6 +122,33 @@ export const logout = async (req, res) => {
             message: "Internal Server Error",
             error
         });
+
+    }
+}
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: "Email doesnot exist" })
+        }
+        const token = crypto.randomBytes(32).toString("hex");
+        user.resetToken = token
+        user.resetTokenExpiresAt = Date.now() + 60 * 60 * 1000 //1hr
+        await user.save();
+        await forgotPasswordEmail(user.email, "Forgot Your Password", `${process.env.CLIENT_URI}/reset-password/${token}`)
+        res.status(200).json({
+            message: "Email Sent Successfully",
+            token
+        });
+
+
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error", error })
 
     }
 }
