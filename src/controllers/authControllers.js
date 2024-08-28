@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from "../models/userModel.js";
 import generateOTP from "../utils/generateOTP.js";
-import { forgotPasswordEmail, sendEmail, welcomeEmail } from '../utils/sendEmail.js';
+import { forgotPasswordEmail, resetPasswordEmail, sendEmail, welcomeEmail } from '../utils/sendEmail.js';
 import { generateCookie } from '../utils/cookies.js';
 import crypto from 'crypto'
 
@@ -78,14 +78,15 @@ export const verifyemail = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email }).select("-password")
+        const user = await User.findOne({ email });
+
         if (!user) {
             return res.status(400).json({ message: "Email doesn't exist please register" });
         }
         if (!user.isVerified) {
             return res.status(400).json({ message: "Please Verify Your Email First" });
         }
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await bcrypt.compare(password, user.password)
         if (!isValidPassword) {
             return res.status(400).json({ message: "Invalid Email or Password" });
         }
@@ -93,18 +94,21 @@ export const login = async (req, res) => {
         user.lastLogin = Date.now();
         await user.save();
         res.status(200).json({
-            message: "Login Successfully",
-            user
+            message: "Login Successfully", user: {
+                ...user._doc,
+                password: undefined,
+                resetToken: undefined,
+                resetTokenExpiresAt: null
+            }
         });
+
+
 
 
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({
-            message: "Internal Server Error",
-            error
-        });
+        res.status(500).json({ error });
 
     }
 }
@@ -142,6 +146,38 @@ export const forgotPassword = async (req, res) => {
             message: "Email Sent Successfully",
             token
         });
+
+
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error", error })
+
+    }
+}
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password, confirmPassword } = req.body;
+        const user = await User.findOne({
+            resetToken: token,
+            resetTokenExpiresAt: { $gt: Date.now() }
+        });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid Token" })
+        }
+        if (password !== confirmPassword) {
+            return res.status(401).json({ message: "Passwords do not match" })
+        }
+        const hashedPassword = await bcrypt.hash(password, 10)
+        user.password = hashedPassword;
+        user.resetToken = null;
+        user.resetTokenExpiresAt = null;
+        await user.save();
+        res.status(200).json({ message: "Password Reset Successfully" })
+        await resetPasswordEmail(user.email, "Password Reset Success");
 
 
 

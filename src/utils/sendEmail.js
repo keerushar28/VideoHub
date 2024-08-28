@@ -1,5 +1,5 @@
 import transporter from "../config/emailConfig.js";
-import { EMAIL_VERIFICATION_TEMPLATE, WELCOME_TEMPLATE } from "./emailTemplate.js";
+import { EMAIL_VERIFICATION_TEMPLATE, WELCOME_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE } from "./emailTemplate.js";
 
 export const sendEmail = async (to, subject, text, uname) => {
     try {
@@ -48,9 +48,29 @@ export const forgotPasswordEmail = async (to, subject, text) => {
             text,
             html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", text)
         })
+        console.log("Email Sent Successfully")
 
     } catch (error) {
         console.error("Error Sending Email", error)
+
+
+    }
+}
+
+export const resetPasswordEmail = async (to, subject,) => {
+    try {
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to,
+            subject,
+            html: PASSWORD_RESET_SUCCESS_TEMPLATE,
+            category: "Successs"
+        })
+        console.log("Email Sent Successfully")
+
+    } catch (error) {
+        console.error("Error Sending Email", error)
+
 
 
     }
