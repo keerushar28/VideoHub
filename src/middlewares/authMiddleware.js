@@ -7,9 +7,8 @@ export const verifyToken = async (req, res, next) => {
             res.status(400).json({ message: "No token Provided" })
         }
         const decoded = jwt.verify(token, process.env.SECRET_KEY)
-        if(!decoded)
-        {
-            res.status(400).json({message: "Unauthorized Access"})
+        if (!decoded) {
+            res.status(400).json({ message: "Unauthorized Access" })
         }
         req.userID = decoded.userID;
         next();

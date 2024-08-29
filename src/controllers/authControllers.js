@@ -188,3 +188,18 @@ export const resetPassword = async (req, res) => {
 
     }
 }
+export const checkAuth = async (req, res) => {
+    try {
+        const user = await User.findById(req.userID).select("-password")
+        if (!user) return res.status(401).json({ message: "No user - unauthorized" })
+        res.status(200).json({
+            message: "Validate Successfully",
+            user
+        })
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error", error })
+
+    }
+}
