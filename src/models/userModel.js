@@ -23,7 +23,6 @@ const useSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        required: true,
 
     },
     coverImage: {
