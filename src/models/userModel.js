@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const useSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        index: true,
 
     },
     email: {
@@ -20,6 +21,21 @@ const useSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    avatar: {
+        type: String,
+        required: true,
+
+    },
+    coverImage: {
+        type: String,
+    },
+    watchHistory: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Video'
+
+        }
+    ],
     address: {
         type: String,
         required: true
@@ -49,9 +65,6 @@ const useSchema = new mongoose.Schema({
     resetTokenExpiresAt: {
         type: Date,
     }
-
-
-
 }
     , {
         timestamps: true
